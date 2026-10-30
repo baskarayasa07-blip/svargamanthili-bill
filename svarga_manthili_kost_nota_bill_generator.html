@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Nota - SVARGA MANTHILI KOST</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF Library for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    },
+                    colors: {
+                        svarga: {
+                            50: '#f4f7f6',
+                            100: '#e3ebe8',
+                            800: '#333333',
+                            900: '#1e1e1e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .receipt-card {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        }
+        #signature-pad {
+            touch-action: none;
+            cursor: crosshair;
+        }
+        /* Mode Struk Kasir Thermal (58mm/80mm) */
+        .thermal-mode {
+            max-width: 320px !important;
+            padding: 16px !important;
+            border-radius: 0px !important;
+            box-shadow: none !important;
+            border: 1px dashed #94a3b8 !important;
+            font-size: 11px !important;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased font-sans flex flex-col min-h-screen bg-slate-100">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center text-slate-900 font-bold p-1 shadow-md">
+                    <!-- Mini Logo SVG Header -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full text-slate-800" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Outer House Frame (Left bottom open) -->
+                        <path d="M 18,72 L 18,40 L 50,15 L 82,40 L 82,78 L 36,78" />
+                        <!-- Inner 4-shaped Door Loop with extended stem -->
+                        <path d="M 36,78 C 36,52 58,52 58,78 L 58,90" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold tracking-wider text-base sm:text-lg leading-none font-serif text-slate-100">SVARGA MANTHILI KOST</h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Generator Struk Nota Bill Digital</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="openHistoryModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i>
+                    <span>Riwayat Nota</span>
+                    <span id="historyBadgeCount" class="ml-1 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-bold rounded-full text-[10px]">0</span>
+                </button>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Ready
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- LEFT COLUMN: Form Input (6 Cols) -->
+        <section class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-7 space-y-6 flex flex-col justify-between">
+            <div class="space-y-6">
+                
+                <!-- Section Header -->
+                <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-slate-700"></i> Detail Transaksi Nota
+                        </h2>
+                        <p class="text-xs text-slate-500">Isi data di bawah ini untuk memperbarui nota secara langsung.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="saveToHistory()" class="text-xs px-2.5 py-1.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-bookmark text-amber-400"></i> Simpan
+                        </button>
+                        <button type="button" onclick="resetForm()" class="text-xs text-slate-400 hover:text-rose-600 transition flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Fields -->
+                <form id="billForm" class="space-y-4" onsubmit="event.preventDefault();">
+                    
+                    <!-- Row 1: No Nota & Tanggal -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor Nota / Invoice</label>
+                            <div class="relative">
+                                <input type="text" id="inputNoNota" class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition" placeholder="SMK-2026/001">
+                                <i class="fa-solid fa-hashtag absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Transaksi</label>
+                            <input type="date" id="inputTanggal" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition">
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Nama Penghuni & Nomor Kamar -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Penghuni Kost</label>
+                            <div class="relative">
+                                <input type="text" id="inputNama" class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition" placeholder="Nama Lengkap Penghuni">
+                                <i class="fa-solid fa-user absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor Kamar</label>
+                            <input type="text" id="inputKamar" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition" placeholder="Kamar 01">
+                        </div>
+                    </div>
+
+                    <!-- Fitur Baru: Checkbox Deposit / Booking Kamar -->
+                    <div class="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="checkIsBooking" onchange="toggleBookingMode()" class="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500 cursor-pointer">
+                            <label for="checkIsBooking" class="text-xs font-bold text-amber-900 cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-bookmark text-amber-600"></i> Mode DP / Booking (Tanggal / Kamar Belum Fix)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Tanggal Mulai Sewa & Nama Pengelola -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Mulai Sewa</label>
+                            <input type="date" id="inputMulaiSewa" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pengelola / Owner</label>
+                            <input type="text" id="inputPengelola" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition" placeholder="Suriy">
+                        </div>
+                    </div>
+
+                    <!-- Row 3.5: Jabatan Penandatangan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jabatan / Role Penandatangan</label>
+                        <input type="text" id="inputJabatan" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 outline-none transition" placeholder="Owner Kost">
+                    </div>
+
+                    <!-- Row 4: Rincian Biaya -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-receipt text-slate-700"></i> Rincian Tagihan (Rp)
+                        </h3>
+
+                        <div>
+                            <label id="labelBiayaSewa" class="block text-xs font-medium text-slate-600 mb-1">Biaya Sewa Kamar / Total Tarif</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-xs font-semibold text-slate-400">Rp</span>
+                                <input type="number" id="inputBiayaSewa" class="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-slate-800 outline-none" placeholder="0">
+                            </div>
+                        </div>
+
+                        <!-- Input Khusus Nominal DP (Hanya aktif jika status DP / DP BOOKING) -->
+                        <div id="containerNominalDP" class="hidden p-2.5 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
+                            <div>
+                                <label class="block text-xs font-bold text-amber-900 mb-1">Nominal DP / Uang Muka Yang Dibayar</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2 text-xs font-semibold text-amber-500">Rp</span>
+                                    <input type="number" id="inputNominalDP" class="w-full pl-9 pr-3 py-1.5 border border-amber-300 rounded-lg text-sm font-bold text-amber-900 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="500000">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs font-semibold text-amber-800 pt-1 border-t border-amber-200/60">
+                                <span>Sisa Kurang Bayar:</span>
+                                <span id="formSisaKurang" class="font-mono font-bold text-rose-600">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Biaya Listrik <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-xs font-semibold text-slate-400">Rp</span>
+                                <input type="number" id="inputBiayaListrik" class="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-slate-800 outline-none" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan Biaya Lain</label>
+                                <input type="text" id="inputKetLain" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 outline-none" placeholder="Misal: Kebersihan/Parkir">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Nominal Biaya Lain</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2 text-xs font-semibold text-slate-400">Rp</span>
+                                    <input type="number" id="inputBiayaLain" class="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-slate-800 outline-none" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Status Pembayaran & Catatan -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Status Pembayaran</label>
+                            <select id="inputStatus" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-slate-800 outline-none transition bg-white">
+                                <option value="LUNAS">LUNAS</option>
+                                <option value="DP">DP (Uang Muka)</option>
+                                <option value="DP BOOKING">DP BOOKING KAMAR</option>
+                                <option value="BELUM LUNAS">BELUM LUNAS</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan Tambahan</label>
+                            <input type="text" id="inputCatatan" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-800 outline-none transition" placeholder="Terima kasih atas pembayarannya.">
+                        </div>
+                    </div>
+
+                    <!-- Modul Tanda Tangan -->
+                    <div class="pt-2">
+                        <label class="block text-xs font-semibold text-slate-700 mb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-signature text-slate-800 mr-1"></i> Tanda Tangan Pengelola</span>
+                            <span class="text-[11px] text-slate-400 font-normal">Pilih salah satu metode</span>
+                        </label>
+                        
+                        <!-- Signature Tabs -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden">
+                            <div class="flex border-b border-slate-200 bg-slate-50">
+                                <button type="button" id="tabDrawBtn" onclick="switchSigTab('draw')" class="flex-1 py-2 text-xs font-semibold text-slate-900 bg-white border-b-2 border-slate-900 transition">
+                                    <i class="fa-solid fa-pen mr-1"></i> Tulis Langsung
+                                </button>
+                                <button type="button" id="tabUploadBtn" onclick="switchSigTab('upload')" class="flex-1 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+                                    <i class="fa-solid fa-upload mr-1"></i> Upload Gambar
+                                </button>
+                            </div>
+
+                            <!-- Tab 1: Draw Pad -->
+                            <div id="sigDrawContainer" class="p-3 bg-white relative">
+                                <canvas id="signature-pad" width="400" height="130" class="w-full border border-dashed border-slate-300 rounded-lg bg-slate-50/50"></canvas>
+                                <div class="flex justify-between items-center mt-2">
+                                    <p class="text-[11px] text-slate-400">Gunakan mouse atau sentuhan jari di atas</p>
+                                    <button type="button" onclick="clearCanvas()" class="px-2.5 py-1 text-xs text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-md transition font-medium">
+                                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus Coretan
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Tab 2: Upload Pad -->
+                            <div id="sigUploadContainer" class="p-4 bg-white hidden space-y-3">
+                                <input type="file" id="sigFileInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200 cursor-pointer">
+                                <p class="text-[11px] text-slate-400">Format disarankan: PNG Transparan atau JPG bersih.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 text-xs text-slate-400 text-center">
+                SVARGA MANTHILI KOST &copy; 2026 - Digital Invoice
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Live Preview Struk & Actions (6 Cols) -->
+        <section class="lg:col-span-6 flex flex-col space-y-4">
+            
+            <!-- Sticky Top Action Bar -->
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap gap-2 items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 pl-1">
+                        <i class="fa-solid fa-eye text-slate-700"></i> Pratinjau
+                    </span>
+                    <!-- Toggle Format Struk (Standar vs ThermalKasir) -->
+                    <button type="button" id="toggleThermalBtn" onclick="toggleThermalMode()" class="px-2 py-1 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md border border-slate-300 transition flex items-center gap-1">
+                        <i class="fa-solid fa-receipt"></i> <span id="thermalBtnText">Mode Thermal (Kasir)</span>
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap gap-1.5 w-full sm:w-auto">
+                    <button type="button" onclick="copyWhatsAppSummary()" class="flex-1 sm:flex-none px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-copy text-xs"></i> Salin WA
+                    </button>
+                    <button type="button" onclick="openWhatsAppDirect()" class="flex-1 sm:flex-none px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                        <i class="fa-brands fa-whatsapp text-xs"></i> WA
+                    </button>
+                    <button type="button" onclick="downloadPDF()" class="flex-1 sm:flex-none px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </button>
+                    <button type="button" onclick="downloadReceipt()" class="flex-1 sm:flex-none px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-download"></i> PNG
+                    </button>
+                </div>
+            </div>
+
+            <!-- RECEIPT PREVIEW CONTAINER (Captured by html2canvas) -->
+            <div class="flex-1 flex justify-center items-start overflow-x-auto pb-4">
+                
+                <div id="receiptArea" class="w-full max-w-[420px] bg-white text-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-200 receipt-card font-sans relative">
+                    
+                    <!-- Decorative Top Bar -->
+                    <div class="h-1.5 w-full bg-slate-900 absolute top-0 left-0 right-0 rounded-t-2xl"></div>
+
+                    <!-- Header Struk with Custom Logo SVG -->
+                    <div class="text-center pb-5 border-b border-dashed border-slate-300">
+                        
+                        <!-- Official SVG Vector Logo (100% Presisi Akurat) -->
+                        <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                            <svg viewBox="0 0 100 100" class="w-full h-full text-slate-800" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+                                <!-- Outer House Outline (Left bottom endpoint finishes at x=18, y=72) -->
+                                <path d="M 18,72 L 18,38 L 50,14 L 82,38 L 82,78 L 36,78" />
+                                <!-- Inner Loop (Door / Number 4 style stem going down) -->
+                                <path d="M 36,78 C 36,50 58,50 58,78 L 58,92" />
+                            </svg>
+                        </div>
+
+                        <!-- Brand Title & Taglines -->
+                        <h2 class="text-lg sm:text-xl font-bold tracking-wider text-slate-900 font-sans uppercase">SVARGA MANTHILI</h2>
+                        <div class="flex items-center justify-center gap-2 text-xs font-medium text-slate-600 tracking-widest my-0.5">
+                            <span class="h-[1px] w-6 bg-slate-400"></span>
+                            <span>K O S T</span>
+                            <span class="h-[1px] w-6 bg-slate-400"></span>
+                        </div>
+                        <p class="text-[10px] tracking-widest text-slate-500 uppercase font-semibold">NO,5 JIMBARAN</p>
+                        
+                        <div class="mt-3 text-[11px] text-slate-500 space-y-0.5">
+                            <p class="flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-phone text-[10px]"></i> WA :+ 62813-3852-2233
+                            </p>
+                            <p class="text-[10px] text-slate-400">Jimbaran - Bali</p>
+                        </div>
+                    </div>
+
+                    <!-- Label Nota & Tanggal -->
+                    <div class="py-3.5 flex justify-between items-center border-b border-slate-100">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block leading-tight">NOMOR NOTA</span>
+                            <span id="previewNoNota" class="text-xs font-bold font-mono text-slate-800 leading-tight">SMK-2026/001</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block leading-tight">TANGGAL</span>
+                            <span id="previewTanggal" class="text-xs font-medium text-slate-700 leading-tight">29/10/2026</span>
+                        </div>
+                    </div>
+
+                    <!-- Status Pembayaran Box (Simetris & Rapi) -->
+                    <div class="my-3 p-3 bg-slate-50/80 rounded-xl border border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500">Status Transaksi:</span>
+                        <div id="previewStatusBadge" class="px-3.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-center leading-none">
+                            LUNAS
+                        </div>
+                    </div>
+
+                    <!-- Detail Penyewa & Kamar -->
+                    <div class="py-3 border-b border-slate-100 space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Nama Penyewa:</span>
+                            <span id="previewNama" class="font-bold text-slate-800">Budi Santoso</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Kamar:</span>
+                            <span id="previewKamar" class="font-bold text-slate-900 font-mono">Kamar 01</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Tanggal Mulai Sewa:</span>
+                            <span id="previewMulaiSewa" class="font-semibold text-slate-800">01/11/2026</span>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Rincian Tagihan -->
+                    <div class="py-4 border-b border-slate-200">
+                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex justify-between">
+                            <span>Rincian Biaya</span>
+                            <span>Jumlah</span>
+                        </div>
+                        
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span id="previewLabelSewa" class="text-slate-700">Sewa Kamar Kost</span>
+                                <span id="previewSewa" class="font-mono font-medium text-slate-900">Rp 1.500.000</span>
+                            </div>
+
+                            <div id="rowListrik" class="flex justify-between items-center">
+                                <span class="text-slate-700">Biaya Listrik</span>
+                                <span id="previewListrik" class="font-mono font-medium text-slate-900">Rp 0</span>
+                            </div>
+
+                            <div id="rowBiayaLain" class="flex justify-between items-center">
+                                <span id="previewLabelLain" class="text-slate-700">Biaya Lainnya</span>
+                                <span id="previewLain" class="font-mono font-medium text-slate-900">Rp 0</span>
+                            </div>
+
+                            <!-- Baris Sisa Kurang Bayar (Hanya Muncul Jika DP) -->
+                            <div id="rowSisaDP" class="hidden pt-2 border-t border-dashed border-slate-200">
+                                <div class="flex justify-between items-center text-slate-600 font-medium">
+                                    <span>Uang Muka (DP) Dibayar</span>
+                                    <span id="previewNominalDP" class="font-mono text-emerald-600 font-bold">- Rp 500.000</span>
+                                </div>
+                                <div class="flex justify-between items-center text-rose-600 font-bold mt-1">
+                                    <span>Sisa Kurang Bayar</span>
+                                    <span id="previewSisaKurang" class="font-mono text-sm">Rp 2.000.000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Tagihan -->
+                    <div class="py-4 flex justify-between items-center border-b border-dashed border-slate-300">
+                        <div>
+                            <span id="previewTotalTitle" class="text-xs font-bold text-slate-900 block">TOTAL PEMBAYARAN</span>
+                            <span id="previewTotalSub" class="text-[10px] text-slate-400">Termasuk semua rincian di atas</span>
+                        </div>
+                        <span id="previewTotal" class="text-lg font-black font-mono text-slate-900">Rp 1.500.000</span>
+                    </div>
+
+                    <!-- Catatan Tambahan -->
+                    <div class="py-3 text-center">
+                        <p id="previewCatatan" class="text-[11px] italic text-slate-500">"Terima kasih telah melakukan pembayaran tepat waktu."</p>
+                    </div>
+
+                    <!-- Area Tanda Tangan & Pengelola -->
+                    <div class="mt-4 pt-2 flex justify-between items-end">
+                        <div class="text-[10px] text-slate-400">
+                            <p>Dicetak Otomatis</p>
+                            <p class="font-mono">SVARGA MANTHILI</p>
+                        </div>
+                        
+                        <div class="text-center w-40">
+                            <p id="previewJabatan" class="text-[11px] font-medium text-slate-600 mb-1">Owner Kost</p>
+                            
+                            <!-- Display Tanda Tangan Gambar -->
+                            <div class="h-16 w-full flex items-center justify-center my-1 overflow-hidden">
+                                <img id="previewSignatureImg" src="" alt="Tanda Tangan" class="max-h-16 max-w-full object-contain hidden">
+                                <span id="signaturePlaceholder" class="text-[10px] italic text-slate-300 border border-dashed border-slate-200 px-2 py-3 rounded w-full">Belum Ada TTD</span>
+                            </div>
+
+                            <p class="text-xs font-bold text-slate-800 border-t border-slate-300 pt-1 mt-1">( <span id="previewPengelola">Suriy</span> )</p>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Thermal Ripple Visual -->
+                    <div class="mt-6 pt-3 text-center border-t border-slate-100">
+                        <p class="text-[9px] text-slate-400 tracking-widest uppercase font-mono">=== HARAP DISIMPAN SEBAGAI BUKTI ===</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL RIWAYAT NOTA (HISTORY) -->
+    <div id="historyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+            <!-- Modal Header -->
+            <div class="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400 text-lg"></i>
+                    <h3 class="font-bold text-base">Riwayat Nota Tersimpan</h3>
+                </div>
+                <button type="button" onclick="closeHistoryModal()" class="text-slate-400 hover:text-white text-lg px-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <!-- Search & Actions -->
+            <div class="p-3 bg-slate-50 border-b border-slate-200 flex gap-2">
+                <input type="text" id="searchHistory" oninput="renderHistoryList()" placeholder="Cari nama penghuni, nomor kamar, atau nomor nota..." class="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-slate-800">
+                <button type="button" onclick="clearAllHistory()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs font-semibold transition">
+                    <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua
+                </button>
+            </div>
+            <!-- List Items -->
+            <div id="historyContainer" class="p-4 overflow-y-auto space-y-3 flex-1">
+                <!-- Items rendered dynamically -->
+            </div>
+            <!-- Modal Footer -->
+            <div class="p-3 bg-slate-100 text-right border-t border-slate-200">
+                <button type="button" onclick="closeHistoryModal()" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-medium translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Pesan Notifikasi</span>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // State Canvas & Form & History
+        let canvas, ctx;
+        let isDrawing = false;
+        let sigTab = 'draw';
+        let isThermalMode = false;
+        let savedHistory = JSON.parse(localStorage.getItem('svarga_nota_history') || '[]');
+
+        // Notification Toast
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = msg;
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+            } else if (type === 'info') {
+                toastIcon.className = 'fa-solid fa-circle-info text-sky-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-triangle-exclamation text-rose-400';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Toggle Thermal Printer Mode
+        function toggleThermalMode() {
+            isThermalMode = !isThermalMode;
+            const receiptArea = document.getElementById('receiptArea');
+            const text = document.getElementById('thermalBtnText');
+
+            if (isThermalMode) {
+                receiptArea.classList.add('thermal-mode');
+                text.textContent = 'Mode Standar (Normal)';
+                showToast('Ditingkatkan ke Format Struk Kasir Thermal (58/80mm)', 'info');
+            } else {
+                receiptArea.classList.remove('thermal-mode');
+                text.textContent = 'Mode Thermal (Kasir)';
+                showToast('Kembali ke Format Standar', 'info');
+            }
+        }
+
+        // Feature 1: History / Database Local Storage
+        function saveToHistory() {
+            const record = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('id-ID'),
+                noNota: document.getElementById('inputNoNota').value || 'SVRG-2026/001',
+                tanggal: document.getElementById('inputTanggal').value,
+                nama: document.getElementById('inputNama').value || 'Tanpa Nama',
+                kamar: document.getElementById('inputKamar').value || 'Kamar -',
+                mulaiSewa: document.getElementById('inputMulaiSewa').value,
+                pengelola: document.getElementById('inputPengelola').value || 'Suriy',
+                jabatan: document.getElementById('inputJabatan').value || 'Owner',
+                biayaSewa: parseFloat(document.getElementById('inputBiayaSewa').value) || 0,
+                nominalDP: parseFloat(document.getElementById('inputNominalDP').value) || 0,
+                biayaListrik: parseFloat(document.getElementById('inputBiayaListrik').value) || 0,
+                biayaLain: parseFloat(document.getElementById('inputBiayaLain').value) || 0,
+                ketLain: document.getElementById('inputKetLain').value || '',
+                status: document.getElementById('inputStatus').value,
+                catatan: document.getElementById('inputCatatan').value,
+                isBooking: document.getElementById('checkIsBooking').checked
+            };
+
+            savedHistory.unshift(record);
+            localStorage.setItem('svarga_nota_history', JSON.stringify(savedHistory));
+            updateHistoryCount();
+            showToast('Nota berhasil disimpan ke Riwayat!', 'success');
+        }
+
+        function updateHistoryCount() {
+            document.getElementById('historyBadgeCount').textContent = savedHistory.length;
+        }
+
+        function openHistoryModal() {
+            renderHistoryList();
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('historyContainer');
+            const query = (document.getElementById('searchHistory').value || '').toLowerCase();
+            
+            const filtered = savedHistory.filter(item => 
+                item.nama.toLowerCase().includes(query) ||
+                item.kamar.toLowerCase().includes(query) ||
+                item.noNota.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                        <p class="text-xs">Belum ada riwayat nota tersimpan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 hover:border-slate-300 transition">
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-slate-900">${item.nama}</span>
+                            <span class="text-[10px] font-mono px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded">${item.kamar}</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${
+                                item.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-800' :
+                                item.status.includes('DP') ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
+                            }">${item.status}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-mono">No: ${item.noNota} | Tgl: ${item.timestamp}</p>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="loadHistoryItem(${item.id})" class="px-2.5 py-1 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-xs font-semibold transition">
+                            <i class="fa-solid fa-download mr-1"></i> Muat
+                        </button>
+                        <button type="button" onclick="deleteHistoryItem(${item.id})" class="px-2 py-1 text-rose-600 hover:bg-rose-50 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadHistoryItem(id) {
+            const item = savedHistory.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('inputNoNota').value = item.noNota;
+            document.getElementById('inputTanggal').value = item.tanggal;
+            document.getElementById('inputNama').value = item.nama;
+            document.getElementById('inputKamar').value = item.kamar;
+            document.getElementById('inputMulaiSewa').value = item.mulaiSewa;
+            document.getElementById('inputPengelola').value = item.pengelola;
+            document.getElementById('inputJabatan').value = item.jabatan || 'Owner';
+            document.getElementById('inputBiayaSewa').value = item.biayaSewa;
+            document.getElementById('inputNominalDP').value = item.nominalDP || 0;
+            document.getElementById('inputBiayaListrik').value = item.biayaListrik || 0;
+            document.getElementById('inputBiayaLain').value = item.biayaLain || 0;
+            document.getElementById('inputKetLain').value = item.ketLain || '';
+            document.getElementById('inputStatus').value = item.status;
+            document.getElementById('inputCatatan').value = item.catatan;
+            document.getElementById('checkIsBooking').checked = !!item.isBooking;
+
+            toggleBookingMode();
+            updatePreview();
+            closeHistoryModal();
+            showToast(`Data nota Kak ${item.nama} dimuat!`, 'success');
+        }
+
+        function deleteHistoryItem(id) {
+            savedHistory = savedHistory.filter(i => i.id !== id);
+            localStorage.setItem('svarga_nota_history', JSON.stringify(savedHistory));
+            updateHistoryCount();
+            renderHistoryList();
+            showToast('Item berhasil dihapus', 'info');
+        }
+
+        function clearAllHistory() {
+            if (confirm('Yakin ingin menghapus seluruh riwayat simpanan nota?')) {
+                savedHistory = [];
+                localStorage.removeItem('svarga_nota_history');
+                updateHistoryCount();
+                renderHistoryList();
+                showToast('Seluruh riwayat dibersihkan', 'info');
+            }
+        }
+
+        // Feature 6: Download as PDF
+        function downloadPDF() {
+            const receiptArea = document.getElementById('receiptArea');
+            showToast('Sedang memproses PDF...', 'info');
+
+            html2canvas(receiptArea, {
+                scale: 3,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+                
+                const namaPenyewa = (document.getElementById('inputNama').value || 'penyewa').replace(/\s+/g, '_');
+                const noNota = (document.getElementById('inputNoNota').value || 'nota').replace(/[\/\\]/g, '-');
+                
+                pdf.save(`Nota_${noNota}_${namaPenyewa}.pdf`);
+                showToast('Nota PDF berhasil diunduh!', 'success');
+            }).catch(err => {
+                console.error(err);
+                showToast('Gagal memproses PDF', 'error');
+            });
+        }
+
+        // Toggle Mode DP Booking (Fleksibel: Tetap Bisa Edit Kamar & Tanggal Manual)
+        function toggleBookingMode() {
+            const isBooking = document.getElementById('checkIsBooking').checked;
+            const inputKamar = document.getElementById('inputKamar');
+            const inputMulaiSewa = document.getElementById('inputMulaiSewa');
+            const inputStatus = document.getElementById('inputStatus');
+
+            // Tetap BISA DIEDIT (tidak di-disabled lagi!)
+            inputKamar.disabled = false;
+            inputMulaiSewa.disabled = false;
+
+            if (isBooking) {
+                // Berikan saran default jika kamar masih kosong
+                if (!inputKamar.value || inputKamar.value === 'Kamar 01') {
+                    inputKamar.value = 'Kamar 04';
+                }
+                inputStatus.value = 'DP BOOKING';
+                showToast('Mode DP Booking diaktifkan (Input Kamar & Tanggal tetap bisa Anda ubah!)', 'info');
+            } else {
+                inputStatus.value = 'LUNAS';
+            }
+            updatePreview();
+        }
+
+        // Helper Format Rupiah
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(number || 0);
+        }
+
+        // Helper Format Tanggal Indonesia
+        function formatDateIndo(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // Initialize Canvas Drawing Pad
+        function initCanvas() {
+            canvas = document.getElementById('signature-pad');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Mouse Events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+
+            // Touch Events (Mobile Support)
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            });
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            updateSignaturePreviewFromCanvas();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                ctx.closePath();
+                updateSignaturePreviewFromCanvas();
+            }
+        }
+
+        function clearCanvas() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (sigTab === 'draw') {
+                document.getElementById('previewSignatureImg').classList.add('hidden');
+                document.getElementById('signaturePlaceholder').classList.remove('hidden');
+            }
+        }
+
+        function updateSignaturePreviewFromCanvas() {
+            if (sigTab !== 'draw' || !canvas) return;
+            const dataUrl = canvas.toDataURL('image/png');
+            const img = document.getElementById('previewSignatureImg');
+            const placeholder = document.getElementById('signaturePlaceholder');
+
+            img.src = dataUrl;
+            img.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+
+        // Handle File Upload Signature
+        function handleSigUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.getElementById('previewSignatureImg');
+                    const placeholder = document.getElementById('signaturePlaceholder');
+                    
+                    img.src = event.target.result;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Switch Signature Tab
+        function switchSigTab(tab) {
+            sigTab = tab;
+            const drawBtn = document.getElementById('tabDrawBtn');
+            const uploadBtn = document.getElementById('tabUploadBtn');
+            const drawContainer = document.getElementById('sigDrawContainer');
+            const uploadContainer = document.getElementById('sigUploadContainer');
+
+            if (tab === 'draw') {
+                drawBtn.className = 'flex-1 py-2 text-xs font-semibold text-slate-900 bg-white border-b-2 border-slate-900 transition';
+                uploadBtn.className = 'flex-1 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition';
+                drawContainer.classList.remove('hidden');
+                uploadContainer.classList.add('hidden');
+                updateSignaturePreviewFromCanvas();
+            } else {
+                uploadBtn.className = 'flex-1 py-2 text-xs font-semibold text-slate-900 bg-white border-b-2 border-slate-900 transition';
+                drawBtn.className = 'flex-1 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition';
+                uploadContainer.classList.remove('hidden');
+                drawContainer.classList.add('hidden');
+                
+                const fileInput = document.getElementById('sigFileInput');
+                if (fileInput.files && fileInput.files[0]) {
+                    handleSigUpload({ target: fileInput });
+                }
+            }
+        }
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('billForm').reset();
+            clearCanvas();
+            setDefaultValues();
+            updatePreview();
+            showToast('Form telah di-reset ke nilai awal', 'info');
+        }
+
+        // Download Receipt as PNG Image
+        function downloadReceipt() {
+            const receiptArea = document.getElementById('receiptArea');
+            showToast('Sedang memproses gambar nota...', 'info');
+
+            html2canvas(receiptArea, {
+                scale: 3,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                const namaPenyewa = (document.getElementById('inputNama').value || 'penyewa').replace(/\s+/g, '_');
+                const noNota = (document.getElementById('inputNoNota').value || 'nota').replace(/[\/\\]/g, '-');
+                
+                link.download = `Nota_${noNota}_${namaPenyewa}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                showToast('Nota berhasil diunduh sebagai Gambar!', 'success');
+            }).catch(err => {
+                console.error('Gagal men-generate gambar:', err);
+                showToast('Gagal mengunduh nota. Coba lagi.', 'error');
+            });
+        }
+
+        // Copy WhatsApp Summary Text
+        function generateWAText() {
+            const nama = document.getElementById('inputNama').value || '-';
+            const kamar = document.getElementById('inputKamar').value || '-';
+            const noNota = document.getElementById('inputNoNota').value || '-';
+            const status = document.getElementById('inputStatus').value;
+            const total = document.getElementById('previewTotal').textContent;
+            const mulaiSewa = document.getElementById('previewMulaiSewa').textContent;
+            const pengelola = document.getElementById('inputPengelola').value || 'Suriy';
+
+            let detailSisa = '';
+            if (status === 'DP' || status === 'DP BOOKING') {
+                const sisa = document.getElementById('previewSisaKurang').textContent;
+                detailSisa = `\n📌 *Sisa Kurang Bayar:* ${sisa}`;
+            }
+
+            return `*SVARGA MANTHILI KOST*
+---------------------------------------
+Halo Kak *${nama}* (${kamar}),
+Berikut adalah rincian pembayaran sewa kost Anda:
+
+📋 *No. Nota:* ${noNota}
+📅 *Mulai Sewa:* ${mulaiSewa}
+💰 *Total Pembayaran:* ${total}${detailSisa}
+🏷️ *Status:* *[ ${status} ]*
+
+Bukti nota fisik/digital resmi telah dilampirkan bersama pesan ini.
+_Terima kasih telah melakukan pembayaran tepat waktu!_ 🙏✨
+
+Owner : ${pengelola}
+Telp/WA: +62 813-3852-2233
+Jimbaran - Bali`;
+        }
+
+        function copyWhatsAppSummary() {
+            const text = generateWAText();
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Ringkasan teks WA berhasil disalin!', 'success');
+                }).catch(() => {
+                    fallbackCopyText(text);
+                });
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('Ringkasan teks WA berhasil disalin!', 'success');
+        }
+
+        // Open WhatsApp Directly
+        function openWhatsAppDirect() {
+            const text = generateWAText();
+            const encodedText = encodeURIComponent(text);
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+        }
+
+        // Real-time Preview Updater
+        function updatePreview() {
+            // Inputs
+            const noNota = document.getElementById('inputNoNota').value || 'SMK-2026/001';
+            const tanggal = document.getElementById('inputTanggal').value;
+            const nama = document.getElementById('inputNama').value || 'Nama Penghuni';
+            const kamar = document.getElementById('inputKamar').value || 'Belum Dipilih';
+            const mulaiSewa = document.getElementById('inputMulaiSewa').value;
+            const pengelola = document.getElementById('inputPengelola').value || 'Suriy';
+            const jabatan = document.getElementById('inputJabatan').value || 'Owner Kost';
+            
+            const biayaSewa = parseFloat(document.getElementById('inputBiayaSewa').value) || 0;
+            const biayaListrik = parseFloat(document.getElementById('inputBiayaListrik').value) || 0;
+            const biayaLain = parseFloat(document.getElementById('inputBiayaLain').value) || 0;
+            const ketLain = document.getElementById('inputKetLain').value || 'Biaya Lainnya';
+            const nominalDP = parseFloat(document.getElementById('inputNominalDP').value) || 0;
+            
+            const status = document.getElementById('inputStatus').value;
+            const catatan = document.getElementById('inputCatatan').value || 'Terima kasih atas pembayarannya.';
+
+            // Elements
+            document.getElementById('previewNoNota').textContent = noNota;
+            document.getElementById('previewTanggal').textContent = formatDateIndo(tanggal);
+            document.getElementById('previewNama').textContent = nama;
+            
+            // Render Kamar (Persis apa yang diketik pengguna)
+            document.getElementById('previewKamar').textContent = kamar;
+            
+            // Tanggal Mulai Sewa (Jika diisi pakai format Indo, jika kosong tampilkan 'Akan Dikonfirmasi')
+            document.getElementById('previewMulaiSewa').textContent = mulaiSewa ? formatDateIndo(mulaiSewa) : 'Akan Dikonfirmasi';
+            
+            document.getElementById('previewPengelola').textContent = pengelola;
+            document.getElementById('previewJabatan').textContent = jabatan;
+
+            // DP Logic Toggle
+            const containerNominalDP = document.getElementById('containerNominalDP');
+            const rowSisaDP = document.getElementById('rowSisaDP');
+            const totalSewaKamar = biayaSewa + biayaListrik + biayaLain;
+
+            if (status === 'DP' || status === 'DP BOOKING') {
+                containerNominalDP.classList.remove('hidden');
+                rowSisaDP.classList.remove('hidden');
+
+                const sisaKurang = totalSewaKamar - nominalDP;
+                const formattedSisa = formatRupiah(sisaKurang < 0 ? 0 : sisaKurang);
+                
+                document.getElementById('formSisaKurang').textContent = formattedSisa;
+                document.getElementById('previewNominalDP').textContent = `- ${formatRupiah(nominalDP)}`;
+                document.getElementById('previewSisaKurang').textContent = formattedSisa;
+
+                document.getElementById('previewTotalTitle').textContent = 'TOTAL DP DIBAYAR';
+                document.getElementById('previewTotalSub').textContent = 'Nominal DP yang diterima saat ini';
+                document.getElementById('previewTotal').textContent = formatRupiah(nominalDP);
+                document.getElementById('previewLabelSewa').textContent = 'Tarif Sewa Kamar';
+            } else {
+                containerNominalDP.classList.add('hidden');
+                rowSisaDP.classList.add('hidden');
+
+                document.getElementById('previewTotalTitle').textContent = 'TOTAL PEMBAYARAN';
+                document.getElementById('previewTotalSub').textContent = 'Termasuk semua rincian di atas';
+                document.getElementById('previewTotal').textContent = formatRupiah(totalSewaKamar);
+                document.getElementById('previewLabelSewa').textContent = 'Sewa Kamar Kost';
+            }
+
+            // Prices
+            document.getElementById('previewSewa').textContent = formatRupiah(biayaSewa);
+            
+            const rowListrik = document.getElementById('rowListrik');
+            if (biayaListrik > 0) {
+                rowListrik.classList.remove('hidden');
+                document.getElementById('previewListrik').textContent = formatRupiah(biayaListrik);
+            } else {
+                rowListrik.classList.add('hidden');
+            }
+
+            const rowBiayaLain = document.getElementById('rowBiayaLain');
+            if (biayaLain > 0) {
+                rowBiayaLain.classList.remove('hidden');
+                document.getElementById('previewLabelLain').textContent = ketLain;
+                document.getElementById('previewLain').textContent = formatRupiah(biayaLain);
+            } else {
+                rowBiayaLain.classList.add('hidden');
+            }
+
+            // Status Badge
+            const badge = document.getElementById('previewStatusBadge');
+            badge.textContent = status;
+
+            if (status === 'LUNAS') {
+                badge.className = 'px-3.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-center leading-none bg-emerald-100 text-emerald-800 border border-emerald-300';
+            } else if (status === 'DP' || status === 'DP BOOKING') {
+                badge.className = 'px-3.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-center leading-none bg-amber-100 text-amber-800 border border-amber-300';
+            } else {
+                badge.className = 'px-3.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase text-center leading-none bg-rose-100 text-rose-800 border border-rose-300';
+            }
+
+            // Catatan
+            document.getElementById('previewCatatan').textContent = `"${catatan}"`;
+        }
+
+        // Set Default Form Values
+        function setDefaultValues() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inputTanggal').value = today;
+            document.getElementById('inputMulaiSewa').value = today;
+            document.getElementById('inputNoNota').value = 'SVRG-2026/001';
+            document.getElementById('inputPengelola').value = 'Suriy';
+            document.getElementById('inputJabatan').value = 'Owner';
+            document.getElementById('inputBiayaSewa').value = 2500000;
+            document.getElementById('inputNominalDP').value = 500000;
+            document.getElementById('inputBiayaLain').value = 0;
+            document.getElementById('inputBiayaListrik').value = 0;
+            document.getElementById('inputNama').value = 'Budi Santoso';
+            document.getElementById('inputKamar').value = 'Kamar 01';
+            document.getElementById('inputCatatan').value = 'Terima kasih telah membayar tepat waktu.';
+        }
+
+        // Initialize App on DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            setDefaultValues();
+            initCanvas();
+            updatePreview();
+            updateHistoryCount();
+
+            // Event Listeners for Live Update
+            const formInputs = document.querySelectorAll('#billForm input, #billForm select');
+            formInputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+
+            // Handle Signature File Input Upload Event
+            const sigFileInput = document.getElementById('sigFileInput');
+            if (sigFileInput) {
+                sigFileInput.addEventListener('change', handleSigUpload);
+            }
+        });
+    </script>
+</body>
+</html>
